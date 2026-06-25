@@ -7,7 +7,7 @@ set -euo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 source "$SCRIPT_DIR/../config.sh"
-source "$LCG_SETUP"
+set +u; source "$LCG_SETUP"; set -u
 
 GRIDDIR="$REPO_DIR/gridpack"
 PROG="$REPO_DIR/POWHEG-BOX-V2/hvq/NonRelativisticCorrections/pwhg_main-thr2"

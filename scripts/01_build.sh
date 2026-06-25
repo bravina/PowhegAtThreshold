@@ -7,7 +7,7 @@ SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 source "$SCRIPT_DIR/../config.sh"
 
 echo "=== Sourcing LCG environment: $LCG_SETUP ==="
-source "$LCG_SETUP"
+set +u; source "$LCG_SETUP"; set -u
 echo "  gfortran: $(gfortran --version | head -1)"
 echo "  lhapdf:   $(lhapdf-config --version)"
 

@@ -15,7 +15,7 @@ JOB_DIR="$REPO_DIR/jobs/job_${SEED}"
 echo "Job $SEED starting on $(hostname) at $(date)"
 
 # Source LCG so shared libLHAPDF.so is on LD_LIBRARY_PATH
-source "$LCG_SETUP"
+set +u; source "$LCG_SETUP"; set -u
 
 # Create isolated working directory
 mkdir -p "$JOB_DIR"
