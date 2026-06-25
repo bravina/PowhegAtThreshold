@@ -1,96 +1,102 @@
-!randomseed 352345 ! uncomment to set the random seed to a value of your choice.
-                   ! It generates the call RM48IN(352345,0,0) (see the RM48 manual).
-                   ! THIS MAY ONLY AFFECTS THE GENERATION OF POWHEG EVENTS!
-                   ! If POWHEG is interfaced to a shower MC, refer to the shower MC
-                   ! documentation to set its seed.
+! POWHEG hvq NonRelativisticCorrections input
+! Physics: 13 TeV pp -> ttbar, dileptonic (e+mu)
+! NRC: full threshold corrections (ithreshold 33) + 10 reweighting variations
 
-!Heavy flavour production parameters
+! --- Beam and collider ---
+ih1 1
+ih2 1
+ebeam1 6500.0
+ebeam2 6500.0
 
-numevts 11000
-ih1   1        ! hadron 1
-ih2   1        ! hadron 2
-#ndns1 131      ! pdf for hadron 1 (hvqpdf numbering)
-#ndns2 131      ! pdf for hadron 2
-lhans1 260000         ! pdf set for hadron 1 (LHA numbering)
-lhans2 260000         ! pdf set for hadron 2 (LHA numbering)	
-ebeam1 6500    ! energy of beam 1
-ebeam2 6500    ! energy of beam 2
-qmass  172.5     ! mass of heavy quark in GeV
-facscfact 1    ! factorization scale factor: mufact=muref*facscfact 
-renscfact 1    ! renormalization scale factor: muren=muref*renscfact 
-#fixedscale 1    ! use ref. scale=qmass (default 0, use running scale)
+! --- PDF ---
+lhans1 260000          ! NNPDF30_nlo_as_0118
+lhans2 260000
 
-topdecaymode 20000   ! This corresponds to 1 electron and 1 muon
-                     ! an integer of 5 digits that are either 0, or 2, representing in 
-                     ! the order the maximum number of the following particles(antiparticles)
-                     ! in the final state: e  mu tau up charm
-                     ! For example
-                     ! 22222    All decays (up to 2 units of everything)
-                     ! 20000    both top go into b l nu (with the appropriate signs)
-                     ! 10011    one top goes into electron (or positron), the other into (any) hadrons,
-                     !          or one top goes into charm, the other into up
-                     ! 00022    Fully hadronic
-                     ! 00002    Fully hadronic with two charms
-                     ! 00011    Fully hadronic with a single charm
-                     ! 00012    Fully hadronic with at least one charm
+! --- Scales ---
+facscfact 1.0
+renscfact 1.0
 
-!semileptonic 1      ! uncomment if you want to filter out only semileptonic events. For example,
-                     ! with topdecaymode 10011 and semileptonic 1 you get only events with one top going
-                     ! to an electron or positron, and the other into any hadron.
+! --- Heavy quark ---
+qmass 172.5            ! top mass in GeV
 
-! Parameters for the generation of spin correlations in t tbar decays
-tdec/wmass 80.4  ! W mass for top decay
-tdec/wwidth 2.141
-tdec/bmass 5
-tdec/twidth  1.31
-tdec/elbranching 0.108
+! --- Top decay: dileptonic (1e + 1mu) ---
+topdecaymode 20000     ! ATLAS default 22222; 20000 = both tops -> b l nu, e+mu only
+
+tdec/wmass 80.399
+tdec/wwidth 2.085
+tdec/bmass 4.95
+tdec/twidth 1.32
+tdec/elbranching 0.1082
 tdec/emass 0.00051
 tdec/mumass 0.1057
 tdec/taumass 1.777
-tdec/dmass   0.100
-tdec/umass   0.100
-tdec/smass   0.200
-tdec/cmass   1.5
+tdec/dmass 0.32
+tdec/umass 0.32
+tdec/smass 0.5
+tdec/cmass 1.55
 tdec/sin2cabibbo 0.051
-! Parameters to allow-disallow use of stored data
-use-old-grid 1    ! if 1 use old grid if file pwggrids.dat is present (# 1: regenerate)
-use-old-ubound 1  ! if 1 use norm of upper bounding function stored in pwgubound.dat, if present; # 1: regenerate
 
-ncall1 10000   ! number of calls for initializing the integration grid
-itmx1 5        ! number of iterations for initializing the integration grid
-ncall2 50000   ! number of calls for computing the integral and finding upper bound
-itmx2 8        ! number of iterations for computing the integral and finding upper bound
-foldcsi   1      ! number of folds on x integration
-foldy   1      ! number of folds on y integration
-foldphi 1      ! number of folds on phi integration
-nubound 800000   ! number of bbarra calls to setup norm of upper bounding function
-iymax 1        ! <= 10, normalization of upper bounding function in iunorm X iunorm square in y, log(m2qq)
-ixmax 1        ! <= 10, normalization of upper bounding function in iunorm X iunorm square in y, log(m2qq)
-xupbound 10     ! increase upper bound for radiation generation
-hdamp    258.75  ! damping of real emission in the POWHEG Sudakov (h-function); typically mt or 1.5*mt
-bornktmin 5.0   ! minimum kt cut on Born kinematics to improve integration efficiency
+bmass_lhe 4.95
+cmass_lhe 1.55
 
-# bornonly 1
-# LOevents 1
+! --- Integration (ATLAS production values) ---
+ncall1 10000
+itmx1 5
+ncall2 50000           ! ATLAS default 100000; production value 50000
+itmx2 8                ! ATLAS default 5; production value 8
+nubound 800000         ! ATLAS default 100000; production value 800000
+foldcsi 1
+foldy 1
+foldphi 1
+iymax 1
+icsimax 1
+xupbound 10            ! ATLAS default 2; large safety margin for threshold region
 
+! --- Radiation ---
+hdamp 258.75           ! 1.5 * mt; h^2/(pt^2+h^2) damping
+bornktmin 5.0          ! minimum kt on Born kinematics
 
+! --- Performance ---
+evenmaxrat 1
+fastbtlbound 1
+storemintupb 1
+smartsig 1
+bornzerodamp 1
+iupperisr 1
+iupperfsr 2
 
+! --- Grid and upper bound reuse ---
+use-old-grid 1
+use-old-ubound 1
+
+! --- Event weights ---
+withnegweights 1
+withsubtr 1
+
+! --- Output ---
+pdfreweight 1
+storeinfo_rwgt 1
+ubsigmadetails 1
+colltest 1
+softtest 1
+
+! --- Parallel execution (overridden by 02_gridpack.sh and run_job.sh) ---
 manyseeds 1
 parallelstage 1
-
 xgriditeration 1
 
-ithreshold 33
-
-onlyColSing 0
-
-# alphathr 0.142
-
+! --- Events ---
+numevts 11000
+compress_lhe 1
 clobberlhe 1
 
-rwl_file '-'
+! --- NonRelativisticCorrections ---
+ithreshold 33
+onlyColSing 0
+effAlpha 1
 
-# rwl_add 1
+! --- NRC reweighting variations ---
+rwl_file '-'
 
 <initrwgt>
 <weightgroup name='ithreshold'>
@@ -106,15 +112,3 @@ rwl_file '-'
 <weight id='11'> ithreshold=33 coulombScaleFact=2 </weight>
 </weightgroup>
 </initrwgt>
-
-
-compress_lhe 1
-
-
-
-softtest 0
-colltest 0
-effAlpha 1
-
-
-
