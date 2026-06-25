@@ -1,0 +1,12 @@
+universe      = vanilla
+executable    = REPO_DIR_PLACEHOLDER/htcondor/run_job.sh
+arguments     = $(Process)
+log           = REPO_DIR_PLACEHOLDER/logs/job_$(Process).log
+output        = REPO_DIR_PLACEHOLDER/logs/job_$(Process).out
+error         = REPO_DIR_PLACEHOLDER/logs/job_$(Process).err
+request_cpus  = 1
+request_memory = 2GB
+request_disk  = 500MB
+# Binary, gridpack, and output are all on the shared filesystem — no transfer needed
+should_transfer_files = NO
+queue NJOBS_PLACEHOLDER

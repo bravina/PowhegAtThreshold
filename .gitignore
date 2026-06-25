@@ -1,0 +1,11 @@
+POWHEG-BOX-V2/
+gridpack/
+jobs/
+output/
+logs/
+*.lhe
+*.lhe.gz
+*.dat
+obj-*/
+.devcontainer/
+.claude/

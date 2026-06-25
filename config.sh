@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# =============================================================================
+# User configuration — fill in these values before running any script.
+# All scripts source this file; nothing else needs to be edited.
+# =============================================================================
+
+# Absolute path to the directory where this repo is cloned on UCAF
+REPO_DIR=/path/to/PowhegAtThreshold
+
+# Where to write the final LHE files (must have enough space — expect ~50 GB)
+OUTPUT_DIR=/path/to/output/lhe
+
+# LCG environment script from CVMFS.
+# Adjust the release and platform tag to match the UCAF OS:
+#   x86_64-el9-gcc13-opt   → AlmaLinux/Rocky 9 + gcc 13
+#   x86_64-centos7-gcc11-opt → CentOS 7 + gcc 11  (older machines)
+LCG_SETUP=/cvmfs/sft.cern.ch/lcg/views/LCG_106/x86_64-el9-gcc13-opt/setup.sh
+
+# Cores available on the build/login machine for gridpack generation
+GRIDPACK_NCORES=40
+
+# HTCondor job array size and events per job  (NJOBS × NEVENTS_PER_JOB = total)
+NJOBS=1000
+NEVENTS_PER_JOB=10000
