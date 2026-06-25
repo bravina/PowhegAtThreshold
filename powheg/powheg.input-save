@@ -6,7 +6,7 @@
 
 !Heavy flavour production parameters
 
-numevts 10000
+numevts 11000
 ih1   1        ! hadron 1
 ih2   1        ! hadron 2
 #ndns1 131      ! pdf for hadron 1 (hvqpdf numbering)
@@ -58,15 +58,17 @@ use-old-ubound 1  ! if 1 use norm of upper bounding function stored in pwgubound
 
 ncall1 10000   ! number of calls for initializing the integration grid
 itmx1 5        ! number of iterations for initializing the integration grid
-ncall2 1000000  ! number of calls for computing the integral and finding upper bound
-itmx2 5        ! number of iterations for computing the integral and finding upper bound
+ncall2 50000   ! number of calls for computing the integral and finding upper bound
+itmx2 8        ! number of iterations for computing the integral and finding upper bound
 foldcsi   1      ! number of folds on x integration
 foldy   1      ! number of folds on y integration
 foldphi 1      ! number of folds on phi integration
-nubound 1000000  ! number of bbarra calls to setup norm of upper bounding function
+nubound 800000   ! number of bbarra calls to setup norm of upper bounding function
 iymax 1        ! <= 10, normalization of upper bounding function in iunorm X iunorm square in y, log(m2qq)
 ixmax 1        ! <= 10, normalization of upper bounding function in iunorm X iunorm square in y, log(m2qq)
-xupbound 2      ! increase upper bound for radiation generation
+xupbound 10     ! increase upper bound for radiation generation
+hdamp    258.75  ! damping of real emission in the POWHEG Sudakov (h-function); typically mt or 1.5*mt
+bornktmin 5.0   ! minimum kt cut on Born kinematics to improve integration efficiency
 
 # bornonly 1
 # LOevents 1
