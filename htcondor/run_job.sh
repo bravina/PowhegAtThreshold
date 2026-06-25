@@ -16,6 +16,7 @@ echo "Job $SEED starting on $(hostname) at $(date)"
 
 # Source LCG so shared libLHAPDF.so is on LD_LIBRARY_PATH
 set +u; source "$LCG_SETUP"; set -u
+export LHAPDF_DATA_PATH="${LHAPDF_DATA_PATH}:$(lhapdf-config --datadir)"
 
 # Create isolated working directory
 mkdir -p "$JOB_DIR"

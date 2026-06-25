@@ -11,18 +11,25 @@ set +u; source "$LCG_SETUP"; set -u
 echo "  gfortran: $(gfortran --version | head -1)"
 echo "  lhapdf:   $(lhapdf-config --version)"
 
-# Check that the required PDF set is accessible
-PDFDIR=$(lhapdf-config --datadir)
-if [ ! -d "$PDFDIR/NNPDF30_nlo_as_0118" ]; then
+# Prepend the CVMFS lhapdfsets path so LHAPDF6 finds PDF sets there.
+# The LCG view's own datadir (returned by lhapdf-config --datadir) is
+# kept as a fallback by appending it after a colon.
+export LHAPDF_DATA_PATH="${LHAPDF_DATA_PATH}:$(lhapdf-config --datadir)"
+echo "  LHAPDF_DATA_PATH: $LHAPDF_DATA_PATH"
+
+# Verify the required PDF set is reachable
+PDF_FOUND=""
+IFS=: read -ra PDFDIRS <<< "$LHAPDF_DATA_PATH"
+for dir in "${PDFDIRS[@]}"; do
+    [ -d "$dir/NNPDF30_nlo_as_0118" ] && PDF_FOUND="$dir" && break
+done
+if [ -z "$PDF_FOUND" ]; then
     echo ""
-    echo "ERROR: PDF set NNPDF30_nlo_as_0118 not found under $PDFDIR"
-    echo "Either it is not installed on this CVMFS instance, or you need to"
-    echo "download it to a local directory and set LHAPDF_DATA_PATH, e.g.:"
-    echo "  export LHAPDF_DATA_PATH=/your/writable/path:\$LHAPDF_DATA_PATH"
-    echo "  lhapdf install NNPDF30_nlo_as_0118"
+    echo "ERROR: NNPDF30_nlo_as_0118 not found in any directory on LHAPDF_DATA_PATH"
+    echo "  $LHAPDF_DATA_PATH"
     exit 1
 fi
-echo "  PDF set:  NNPDF30_nlo_as_0118 found at $PDFDIR"
+echo "  PDF set:  NNPDF30_nlo_as_0118 found at $PDF_FOUND"
 
 echo ""
 echo "=== Cloning POWHEG-BOX-V2 ==="

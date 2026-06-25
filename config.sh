@@ -12,9 +12,14 @@ OUTPUT_DIR=/path/to/output/lhe
 
 # LCG environment script from CVMFS.
 # Adjust the release and platform tag to match the UCAF OS:
-#   x86_64-el9-gcc13-opt   → AlmaLinux/Rocky 9 + gcc 13
+#   x86_64-el9-gcc13-opt     → AlmaLinux/Rocky 9 + gcc 13
 #   x86_64-centos7-gcc11-opt → CentOS 7 + gcc 11  (older machines)
 LCG_SETUP=/cvmfs/sft.cern.ch/lcg/views/LCG_106/x86_64-el9-gcc13-opt/setup.sh
+
+# Path to LHAPDF PDF sets on CVMFS.
+# LHAPDF6 searches all colon-separated directories in this variable.
+# The LCG view's own datadir is appended automatically by 01_build.sh.
+LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current
 
 # Cores available on the build/login machine for gridpack generation
 GRIDPACK_NCORES=40
