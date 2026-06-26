@@ -35,9 +35,9 @@ for f in "$GRIDDIR"/*; do
 done
 
 # Build per-job input: stage 4, correct numevts.
-# use-old-grid 0: NRC binary has no pwggrids.dat xgrid; setting 1 causes
-# a fatal lookup failure. NRC uses its own phase space sampling so no
-# xgrid recomputation occurs — this is just a no-op skip.
+# use-old-grid 0: suppresses the inherited POWHEG-BOX lookup of pwggrids.dat,
+# which NRC never creates. The NRC-specific pwggrid-NNNN.dat / pwggridinfo-*
+# files are loaded unconditionally through the NRC code path (not via this flag).
 sed "s/parallelstage.*/parallelstage 4/ ; \
      s/numevts.*/numevts $NEVENTS_PER_JOB/ ; \
      s/use-old-grid.*/use-old-grid 0/" \
