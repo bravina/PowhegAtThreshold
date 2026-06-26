@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Run POWHEG stages 1–3 (grid setup) on the build machine using GRIDPACK_NCORES
-# parallel processes.  Produces gridpack/pwggrids.dat and gridpack/pwgubound.dat,
-# which are then used read-only by every HTCondor job.
+# parallel processes, then pack the result into gridpack.tar.gz for HTCondor jobs.
 # Safe to re-run: stages are skipped if their output files already exist.
 set -euo pipefail
 
@@ -82,3 +81,13 @@ echo "  pwg-NNNN-stat.dat files : $N_STAT"
 echo "  pwgubound-NNNN.dat files: $N_UBD"
 [ "$N_STAT" -eq 0 ] && echo "  WARNING: no stat files — check stage 2 logs"
 [ "$N_UBD" -eq 0 ] && echo "  WARNING: no ubound files — check stage 3 logs"
+
+echo ""
+echo "=== Creating gridpack tarball ==="
+TARBALL="$REPO_DIR/gridpack.tar.gz"
+tar czf "$TARBALL" \
+    --exclude='*.log' \
+    --exclude='./powheg.input' \
+    --exclude='./pwgevents-*' \
+    -C "$GRIDDIR" .
+echo "  $(du -h "$TARBALL" | cut -f1)  $TARBALL"

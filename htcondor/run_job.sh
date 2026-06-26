@@ -9,8 +9,6 @@ source "$SCRIPT_DIR/../config.sh"
 
 SEED=$(( PROCESS + 1 ))
 PROG="$REPO_DIR/POWHEG-BOX-V2/hvq/NonRelativisticCorrections/pwhg_main-thr2"
-GRIDDIR="$REPO_DIR/gridpack"
-JOB_DIR="$REPO_DIR/jobs/job_${SEED}"
 
 echo "Job $SEED starting on $(hostname) at $(date)"
 
@@ -18,53 +16,47 @@ echo "Job $SEED starting on $(hostname) at $(date)"
 set +u; source "$LCG_SETUP"; set -u
 export LHAPDF_DATA_PATH="${LHAPDF_DATA_PATH}:$(lhapdf-config --datadir)"
 
-# Create isolated working directory
-mkdir -p "$JOB_DIR"
-
-# Symlink all gridpack files read-only into the job directory.
-# The NRC binary uses many more file types than standard POWHEG-BOX
-# (pwggrid-NNNN.dat, pwggridinfo-*, virtequiv-*, bornequiv-*, etc.),
-# so we symlink everything except input files, stage logs, and LHE output.
-for f in "$GRIDDIR"/*; do
-    bn="$(basename "$f")"
-    [[ "$bn" == powheg.input* ]]  && continue  # job writes its own
-    [[ "$bn" == run-st*.log ]]    && continue  # gridpack stage logs
-    [[ "$bn" == *.lhe ]]          && continue  # event output
-    [[ "$bn" == *.lhe.gz ]]       && continue
-    [ -f "$f" ] && ln -sf "$f" "$JOB_DIR/$bn"
-done
+# Extract gridpack into a local scratch directory.
+# Running from real local files avoids NFS symlink issues and is faster than NFS.
+# $_CONDOR_SCRATCH_DIR is HTCondor's per-job local scratch (cleaned up automatically).
+# Fall back to /tmp when testing on the login node.
+SCRATCH="${_CONDOR_SCRATCH_DIR:-/tmp}/powheg_${SEED}"
+mkdir -p "$SCRATCH"
+tar xzf "$REPO_DIR/gridpack.tar.gz" -C "$SCRATCH"
 
 # Build per-job input: stage 4, correct numevts.
 # use-old-grid 0: suppresses the inherited POWHEG-BOX lookup of pwggrids.dat,
 # which NRC never creates. The NRC-specific pwggrid-NNNN.dat / pwggridinfo-*
-# files are loaded unconditionally through the NRC code path (not via this flag).
+# files are loaded unconditionally through the NRC code path.
 sed "s/parallelstage.*/parallelstage 4/ ; \
      s/numevts.*/numevts $NEVENTS_PER_JOB/ ; \
      s/use-old-grid.*/use-old-grid 0/" \
-    "$GRIDDIR/powheg.input-save" > "$JOB_DIR/powheg.input"
+    "$SCRATCH/powheg.input-save" > "$SCRATCH/powheg.input"
 
 # Run POWHEG — seed injected via stdin.
-# Capture exit code explicitly; without this, set -e+pipefail would fire
-# at the pipe line and the error message below would never print.
-cd "$JOB_DIR"
+cd "$SCRATCH"
 EXIT_CODE=0
 echo "$SEED" | "$PROG" > run.log 2>&1 || EXIT_CODE=$?
 
 if [ $EXIT_CODE -ne 0 ]; then
-    echo "ERROR: POWHEG exited with code $EXIT_CODE — leaving $JOB_DIR for inspection" >&2
+    mkdir -p "$REPO_DIR/logs"
+    cp run.log "$REPO_DIR/logs/job_${SEED}.log"
+    echo "ERROR: POWHEG exited with code $EXIT_CODE — log at $REPO_DIR/logs/job_${SEED}.log" >&2
     exit $EXIT_CODE
 fi
 
-# Collect output atomically
+# Collect output
 LHE=$(ls pwgevents-*.lhe.gz 2>/dev/null | head -1)
 if [ -z "$LHE" ]; then
-    echo "ERROR: no pwgevents-*.lhe.gz found in $JOB_DIR — leaving for inspection" >&2
+    mkdir -p "$REPO_DIR/logs"
+    cp run.log "$REPO_DIR/logs/job_${SEED}.log"
+    echo "ERROR: no pwgevents-*.lhe.gz found — log at $REPO_DIR/logs/job_${SEED}.log" >&2
     exit 1
 fi
 
 mv "$LHE" "$OUTPUT_DIR/"
 echo "Job $SEED done: deposited $LHE to $OUTPUT_DIR at $(date)"
 
-# Clean up
-cd "$REPO_DIR"
-rm -rf "$JOB_DIR"
+# HTCondor cleans up $_CONDOR_SCRATCH_DIR automatically on job exit.
+# For /tmp fallback (login node testing), clean up explicitly.
+[ -z "${_CONDOR_SCRATCH_DIR:-}" ] && rm -rf "$SCRATCH"
