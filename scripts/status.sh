@@ -19,7 +19,7 @@ echo ""
 
 echo "-- Output files in $OUTPUT_DIR --"
 shopt -s nullglob
-files=("$OUTPUT_DIR"/pwgevents-*.lhe.gz)
+files=("$OUTPUT_DIR"/pwgevents-*.lhe.events.gz)
 nfiles=${#files[@]}
 echo "  $nfiles / $NJOBS LHE files present"
 echo ""

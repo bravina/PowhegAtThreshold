@@ -9,7 +9,7 @@ TOTAL_EXPECTED=$(( NJOBS * NEVENTS_PER_JOB ))
 
 echo "=== Checking $OUTPUT_DIR ==="
 shopt -s nullglob
-files=("$OUTPUT_DIR"/pwgevents-*.lhe.gz)
+files=("$OUTPUT_DIR"/pwgevents-*.lhe.events.gz)
 nfiles=${#files[@]}
 echo "  LHE files present : $nfiles / $NJOBS"
 

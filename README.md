@@ -158,7 +158,7 @@ bash scripts/run_local.sh 0
 ```bash
 source config.sh
 for i in $(seq 1 $NJOBS); do
-    f=$(printf "pwgevents-%04d.lhe.gz" $i)
+    f=$(printf "pwgevents-%04d.lhe.events.gz" $i)
     [ -f "$OUTPUT_DIR/$f" ] || echo "missing: seed $i"
 done
 ```
@@ -174,7 +174,7 @@ yield is 22M events.
 
 ## Output format
 
-Each `pwgevents-NNNN.lhe.gz` is a gzipped Les Houches Event File. Each event
+Each `pwgevents-NNNN.lhe.events.gz` is a gzipped Les Houches Event File. Each event
 carries 10 extra weights for threshold uncertainty studies:
 
 | Weight ID | Setting | Description |

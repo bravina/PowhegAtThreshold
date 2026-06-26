@@ -67,10 +67,19 @@ if [ -z "$LHE" ]; then
     exit 1
 fi
 
-DEST="$(basename "$LHE")"
-[[ "$DEST" != *.gz ]] && DEST="${DEST}.gz"
-mv "$LHE" "$OUTPUT_DIR/$DEST"
-echo "Job $SEED done: deposited $DEST to $OUTPUT_DIR at $(date)"
+# POWHEG names its gzip-compressed output .lhe (missing the .gz suffix).
+# Rename to .lhe.gz, decompress, rename to .lhe.events, recompress, deposit.
+STEM=$(basename "$LHE")
+STEM="${STEM%.lhe.gz}"
+STEM="${STEM%.lhe}"
+
+[[ "$LHE" == *.gz ]] || mv "$LHE" "${STEM}.lhe.gz"
+gunzip "${STEM}.lhe.gz"
+mv "${STEM}.lhe" "${STEM}.lhe.events"
+gzip "${STEM}.lhe.events"
+
+mv "${STEM}.lhe.events.gz" "$OUTPUT_DIR/${STEM}.lhe.events.gz"
+echo "Job $SEED done: deposited ${STEM}.lhe.events.gz to $OUTPUT_DIR at $(date)"
 
 # HTCondor cleans up $_CONDOR_SCRATCH_DIR automatically on job exit.
 # For /tmp fallback (login node testing), clean up explicitly.
