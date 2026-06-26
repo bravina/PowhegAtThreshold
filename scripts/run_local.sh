@@ -25,8 +25,9 @@ SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 source "$SCRIPT_DIR/../config.sh"
 
 RUN_JOB="$SCRIPT_DIR/../htcondor/run_job.sh"
-[ -f "$REPO_DIR/gridpack.tar.gz" ] || \
-    { echo "ERROR: gridpack.tar.gz missing — run 02_gridpack.sh first"; exit 1; }
+REPO_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
+[ -f "$REPO_ROOT/gridpack.tar.gz" ] || \
+    { echo "ERROR: $REPO_ROOT/gridpack.tar.gz missing — run 02_gridpack.sh first"; exit 1; }
 
 # Contiguous partition of process indices (0-based, same convention as HTCondor $(Process))
 JOBS_PER_MACHINE=$(( (NJOBS + NMACHINES - 1) / NMACHINES ))
