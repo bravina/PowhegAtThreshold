@@ -27,14 +27,22 @@ echo "  pwgseeds.dat: $NSEEDS entries"
 
 cd "$GRIDDIR"
 
-# Helper: run N parallel POWHEG processes and wait for all to finish
+# Helper: run N parallel POWHEG processes and wait for all to finish.
+# Checks every exit code individually — plain `wait` only returns the
+# status of the last process, silently swallowing earlier failures.
 run_parallel() {
     local n=$1
     local logprefix=$2
+    local pids=()
     for i in $(seq "$n"); do
         echo "$i" | "$PROG" > "${logprefix}-${i}.log" 2>&1 &
+        pids+=($!)
     done
-    wait
+    local failed=0
+    for i in $(seq "$n"); do
+        wait "${pids[$((i-1))]}" || { echo "  ERROR: process $i failed (see ${logprefix}-${i}.log)"; failed=$((failed+1)); }
+    done
+    [ "$failed" -gt 0 ] && { echo "  $failed process(es) failed — aborting"; exit 1; }
     echo "  all $n processes finished"
 }
 
