@@ -19,10 +19,12 @@ mkdir -p "$GRIDDIR"
 echo "=== Setting up gridpack directory: $GRIDDIR ==="
 cp "$REPO_DIR/powheg/powheg.input-save" "$GRIDDIR/"
 
-# Generate pwgseeds.dat with enough entries for both gridpack and all HTCondor jobs
-NSEEDS=$(( NJOBS > GRIDPACK_NCORES ? NJOBS : GRIDPACK_NCORES ))
-seq 1 "$NSEEDS" > "$GRIDDIR/pwgseeds.dat"
-echo "  pwgseeds.dat: $NSEEDS entries"
+# pwgseeds.dat lists the seeds for which grid files (pwggrid-NNNN.dat etc.) are built.
+# Stage 4 uses manyseeds 1 (seed injected via stdin) so it does not need entries
+# beyond GRIDPACK_NCORES; having more causes the binary to look for grid files that
+# don't exist and abort with "cannot load grid files".
+seq 1 "$GRIDPACK_NCORES" > "$GRIDDIR/pwgseeds.dat"
+echo "  pwgseeds.dat: $GRIDPACK_NCORES entries"
 
 cd "$GRIDDIR"
 
