@@ -5,10 +5,10 @@
 # =============================================================================
 
 # Absolute path to the directory where this repo is cloned on UCAF
-REPO_DIR=/path/to/PowhegAtThreshold
+REPO_DIR=/home/ravinab/PowhegAtThreshold
 
 # Where to write the final LHE files (must have enough space — expect ~50 GB)
-OUTPUT_DIR=/path/to/output/lhe
+OUTPUT_DIR=/work/user/ravinab/PowhegAtThreshold
 
 # LCG environment script from CVMFS.
 # Adjust the release and platform tag to match the UCAF OS:
@@ -22,8 +22,8 @@ LCG_SETUP=/cvmfs/sft.cern.ch/lcg/views/LCG_106/x86_64-el9-gcc13-opt/setup.sh
 LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current
 
 # Cores available on the build/login machine for gridpack generation
-GRIDPACK_NCORES=40
+GRIDPACK_NCORES=80
 
 # HTCondor job array size and events per job  (NJOBS × NEVENTS_PER_JOB = total)
-NJOBS=1000
+NJOBS=2000
 NEVENTS_PER_JOB=11000
