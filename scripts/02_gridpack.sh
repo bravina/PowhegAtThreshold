@@ -2,7 +2,7 @@
 # Run POWHEG stages 1–3 (grid setup) on the build machine using GRIDPACK_NCORES
 # parallel processes.  Produces gridpack/pwggrids.dat and gridpack/pwgubound.dat,
 # which are then used read-only by every HTCondor job.
-# Run once; safe to re-run (use-old-grid / use-old-ubound skip completed stages).
+# Safe to re-run: stages are skipped if their output files already exist.
 set -euo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
@@ -38,24 +38,33 @@ run_parallel() {
     echo "  all $n processes finished"
 }
 
-echo ""
-echo "=== Stage 1a: x-grid iteration 1 ($GRIDPACK_NCORES cores) ==="
-sed "s/xgriditeration.*/xgriditeration 1/ ; s/parallelstage.*/parallelstage 1/" \
-    powheg.input-save > powheg.input
-run_parallel "$GRIDPACK_NCORES" "run-st1-xg1"
+if [ -f "$GRIDDIR/pwggrids.dat" ]; then
+    echo ""
+    echo "=== Stages 1a+1b+2: pwggrids.dat already exists — skipping ==="
+else
+    echo ""
+    echo "=== Stage 1a: x-grid iteration 1 ($GRIDPACK_NCORES cores) ==="
+    sed "s/xgriditeration.*/xgriditeration 1/ ; s/parallelstage.*/parallelstage 1/" \
+        powheg.input-save > powheg.input
+    run_parallel "$GRIDPACK_NCORES" "run-st1-xg1"
 
-echo "=== Stage 1b: x-grid iteration 2 ($GRIDPACK_NCORES cores) ==="
-sed "s/xgriditeration.*/xgriditeration 2/ ; s/parallelstage.*/parallelstage 1/" \
-    powheg.input-save > powheg.input
-run_parallel "$GRIDPACK_NCORES" "run-st1-xg2"
+    echo "=== Stage 1b: x-grid iteration 2 ($GRIDPACK_NCORES cores) ==="
+    sed "s/xgriditeration.*/xgriditeration 2/ ; s/parallelstage.*/parallelstage 1/" \
+        powheg.input-save > powheg.input
+    run_parallel "$GRIDPACK_NCORES" "run-st1-xg2"
 
-echo "=== Stage 2: NLO + upper bounding ($GRIDPACK_NCORES cores) ==="
-sed "s/parallelstage.*/parallelstage 2/" powheg.input-save > powheg.input
-run_parallel "$GRIDPACK_NCORES" "run-st2"
+    echo "=== Stage 2: NLO + upper bounding ($GRIDPACK_NCORES cores) ==="
+    sed "s/parallelstage.*/parallelstage 2/" powheg.input-save > powheg.input
+    run_parallel "$GRIDPACK_NCORES" "run-st2"
+fi
 
-echo "=== Stage 3: radiation upper bounds ($GRIDPACK_NCORES cores) ==="
-sed "s/parallelstage.*/parallelstage 3/" powheg.input-save > powheg.input
-run_parallel "$GRIDPACK_NCORES" "run-st3"
+if [ -f "$GRIDDIR/pwgubound.dat" ]; then
+    echo "=== Stage 3: pwgubound.dat already exists — skipping ==="
+else
+    echo "=== Stage 3: radiation upper bounds ($GRIDPACK_NCORES cores) ==="
+    sed "s/parallelstage.*/parallelstage 3/" powheg.input-save > powheg.input
+    run_parallel "$GRIDPACK_NCORES" "run-st3"
+fi
 
 echo ""
 echo "=== Gridpack complete ==="
