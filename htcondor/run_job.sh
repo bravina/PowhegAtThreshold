@@ -50,9 +50,10 @@ if [ $EXIT_CODE -ne 0 ]; then
 fi
 
 # Collect output.
-# NRC compress_lhe 1 produces gzip-compressed content but names the file
-# pwgevents-NNNN.lhe (no .gz suffix).  Accept both; always deposit as .lhe.gz.
-LHE=$(ls pwgevents-*.lhe.gz pwgevents-*.lhe 2>/dev/null | head -1)
+# NRC compress_lhe 1 produces gzip-compressed content named pwgevents-NNNN.lhe
+# (no .gz suffix). Use find (always exits 0) to avoid set -e / pipefail
+# triggering when ls receives an unmatched glob as a literal argument.
+LHE=$(find . -maxdepth 1 \( -name 'pwgevents-*.lhe.gz' -o -name 'pwgevents-*.lhe' \) | head -1)
 if [ -z "$LHE" ]; then
     mkdir -p "$REPO_DIR/logs"
     cp run.log "$REPO_DIR/logs/job_${SEED}.log"
