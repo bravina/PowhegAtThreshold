@@ -144,17 +144,21 @@ yield is 22M events.
 Each `pwgevents-NNNN.lhe.gz` is a gzipped Les Houches Event File. Each event
 carries 10 extra weights for threshold uncertainty studies:
 
-| Weight ID | Setting |
-|-----------|---------|
-| 2  | `ithreshold 0` (no threshold corrections) |
-| 3  | `ithreshold 1` |
-| 4  | `ithreshold 2` |
-| 5  | `ithreshold 3` |
-| 6  | `ithreshold 4` |
-| 7  | `ithreshold 6` |
-| 8  | `ithreshold 34` |
-| 9  | `ithreshold 35` |
-| 10 | `ithreshold 33`, `coulombScaleFact 0.5` |
-| 11 | `ithreshold 33`, `coulombScaleFact 2` |
+| Weight ID | Setting | Description |
+|-----------|---------|-------------|
+| nominal | `ithreshold 33` | Exact Sommerfeld factor + delta term (full NRC) |
+| 2  | `ithreshold 0`  | No threshold corrections (pure NLO) |
+| 3  | `ithreshold 1`  | + NLO αs/β Coulomb term |
+| 4  | `ithreshold 2`  | + NNLO αs²/β² Coulomb term |
+| 5  | `ithreshold 3`  | + NNNLO αs³ δ(E) term |
+| 6  | `ithreshold 4`  | + NNNNLO αs⁴ term |
+| 7  | `ithreshold 6`  | Perturbative Coulomb expansion through 6th order in αs/β |
+| 8  | `ithreshold 34` | Delta term only (+ Born) |
+| 9  | `ithreshold 35` | Sommerfeld factor only |
+| 10 | `ithreshold 33`, `coulombScaleFact 0.5` | Full NRC, Coulomb scale ÷ 2 |
+| 11 | `ithreshold 33`, `coulombScaleFact 2`   | Full NRC, Coulomb scale × 2 |
 
-The nominal weight uses `ithreshold 33` (full NRC with Coulomb resummation).
+Values 1–6 are cumulative fixed-order terms in the perturbative expansion of the
+Coulomb Green's function; together they show convergence toward the exact
+Sommerfeld resummation (33). Weights 8 and 9 decompose the full NRC into its
+two components (Sommerfeld factor and delta term).
