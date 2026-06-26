@@ -27,6 +27,11 @@ SCRATCH="${_CONDOR_SCRATCH_DIR:-/tmp}/powheg_${SEED}"
 mkdir -p "$SCRATCH"
 tar xzf "$REPO_DIR/gridpack.tar.gz" -C "$SCRATCH"
 
+# manyseeds 1 rejects seed indices > number of lines in pwgseeds.dat.
+# The gridpack's pwgseeds.dat has only GRIDPACK_NCORES entries; expand it to
+# NJOBS so any seed 1-NJOBS is accepted. Sequential integers give unique RNG seeds.
+seq 1 "$NJOBS" > "$SCRATCH/pwgseeds.dat"
+
 # Build per-job input: stage 4, correct numevts.
 # use-old-grid 1: NRC stage 4 uses this code path to load pwggrid-NNNN.dat
 # (the NRC-specific Vegas grids built during stage 1).  With use-old-grid 0
