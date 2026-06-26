@@ -38,9 +38,9 @@ run_parallel() {
     echo "  all $n processes finished"
 }
 
-if [ -f "$GRIDDIR/pwggrids.dat" ]; then
+if ls "$GRIDDIR"/pwg-*-stat.dat &>/dev/null; then
     echo ""
-    echo "=== Stages 1a+1b+2: pwggrids.dat already exists — skipping ==="
+    echo "=== Stages 1a+1b+2: pwg-NNNN-stat.dat files exist — skipping ==="
 else
     echo ""
     echo "=== Stage 1a: x-grid iteration 1 ($GRIDPACK_NCORES cores) ==="
@@ -58,8 +58,8 @@ else
     run_parallel "$GRIDPACK_NCORES" "run-st2"
 fi
 
-if [ -f "$GRIDDIR/pwgubound.dat" ]; then
-    echo "=== Stage 3: pwgubound.dat already exists — skipping ==="
+if ls "$GRIDDIR"/pwgubound-*.dat &>/dev/null; then
+    echo "=== Stage 3: pwgubound-NNNN.dat files exist — skipping ==="
 else
     echo "=== Stage 3: radiation upper bounds ($GRIDPACK_NCORES cores) ==="
     sed "s/parallelstage.*/parallelstage 3/" powheg.input-save > powheg.input
@@ -68,7 +68,9 @@ fi
 
 echo ""
 echo "=== Gridpack complete ==="
-for f in pwggrids.dat pwgubound.dat; do
-    [ -f "$GRIDDIR/$f" ] && echo "  $f: $(du -sh "$GRIDDIR/$f" | cut -f1)" \
-                         || echo "  WARNING: $f missing — check stage logs"
-done
+N_STAT=$(ls "$GRIDDIR"/pwg-*-stat.dat 2>/dev/null | wc -l)
+N_UBD=$(ls "$GRIDDIR"/pwgubound-*.dat 2>/dev/null | wc -l)
+echo "  pwg-NNNN-stat.dat files : $N_STAT"
+echo "  pwgubound-NNNN.dat files: $N_UBD"
+[ "$N_STAT" -eq 0 ] && echo "  WARNING: no stat files — check stage 2 logs"
+[ "$N_UBD" -eq 0 ] && echo "  WARNING: no ubound files — check stage 3 logs"

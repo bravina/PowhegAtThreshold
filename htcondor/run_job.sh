@@ -21,10 +21,17 @@ export LHAPDF_DATA_PATH="${LHAPDF_DATA_PATH}:$(lhapdf-config --datadir)"
 # Create isolated working directory
 mkdir -p "$JOB_DIR"
 
-# Symlink shared grid files (read-only; no copying)
-ln -sf "$GRIDDIR/pwggrids.dat"  "$JOB_DIR/pwggrids.dat"
-ln -sf "$GRIDDIR/pwgubound.dat" "$JOB_DIR/pwgubound.dat"
-ln -sf "$GRIDDIR/pwgseeds.dat"  "$JOB_DIR/pwgseeds.dat"
+# Symlink shared grid files (read-only; no copying).
+# NRC pwhg_main-thr2 uses per-process files (pwg-NNNN-stat.dat,
+# pwgubound-NNNN.dat, pwgcounters-st3-NNNN.dat) rather than the
+# single pwggrids.dat / pwgubound.dat used by standard POWHEG-BOX.
+ln -sf "$GRIDDIR/pwgseeds.dat" "$JOB_DIR/pwgseeds.dat"
+for f in "$GRIDDIR"/pwg-*-stat.dat \
+         "$GRIDDIR"/pwgubound-*.dat \
+         "$GRIDDIR"/pwgcounters-st3-*.dat \
+         "$GRIDDIR"/pwgubsigma.dat; do
+    [ -f "$f" ] && ln -sf "$f" "$JOB_DIR/$(basename "$f")"
+done
 
 # Build per-job input: stage 4, correct numevts, reuse grid
 sed "s/parallelstage.*/parallelstage 4/ ; \
