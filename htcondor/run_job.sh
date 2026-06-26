@@ -33,15 +33,21 @@ for f in "$GRIDDIR"/pwg-*-stat.dat \
     [ -f "$f" ] && ln -sf "$f" "$JOB_DIR/$(basename "$f")"
 done
 
-# Build per-job input: stage 4, correct numevts, reuse grid
+# Build per-job input: stage 4, correct numevts.
+# use-old-grid 0: NRC binary has no pwggrids.dat xgrid; setting 1 causes
+# a fatal lookup failure. NRC uses its own phase space sampling so no
+# xgrid recomputation occurs — this is just a no-op skip.
 sed "s/parallelstage.*/parallelstage 4/ ; \
-     s/numevts.*/numevts $NEVENTS_PER_JOB/" \
+     s/numevts.*/numevts $NEVENTS_PER_JOB/ ; \
+     s/use-old-grid.*/use-old-grid 0/" \
     "$GRIDDIR/powheg.input-save" > "$JOB_DIR/powheg.input"
 
-# Run POWHEG — seed injected via stdin
+# Run POWHEG — seed injected via stdin.
+# Capture exit code explicitly; without this, set -e+pipefail would fire
+# at the pipe line and the error message below would never print.
 cd "$JOB_DIR"
-echo "$SEED" | "$PROG" > run.log 2>&1
-EXIT_CODE=$?
+EXIT_CODE=0
+echo "$SEED" | "$PROG" > run.log 2>&1 || EXIT_CODE=$?
 
 if [ $EXIT_CODE -ne 0 ]; then
     echo "ERROR: POWHEG exited with code $EXIT_CODE — leaving $JOB_DIR for inspection" >&2
