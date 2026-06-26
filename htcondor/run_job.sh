@@ -16,6 +16,9 @@ echo "Job $SEED starting on $(hostname) at $(date)"
 set +u; source "$LCG_SETUP"; set -u
 export LHAPDF_DATA_PATH="${LHAPDF_DATA_PATH}:$(lhapdf-config --datadir)"
 
+# Ensure output directory exists before running (avoids silent failure at mv)
+mkdir -p "$OUTPUT_DIR"
+
 # Extract gridpack into a local scratch directory.
 # Running from real local files avoids NFS symlink issues and is faster than NFS.
 # $_CONDOR_SCRATCH_DIR is HTCondor's per-job local scratch (cleaned up automatically).
@@ -46,17 +49,21 @@ if [ $EXIT_CODE -ne 0 ]; then
     exit $EXIT_CODE
 fi
 
-# Collect output
-LHE=$(ls pwgevents-*.lhe.gz 2>/dev/null | head -1)
+# Collect output.
+# NRC compress_lhe 1 produces gzip-compressed content but names the file
+# pwgevents-NNNN.lhe (no .gz suffix).  Accept both; always deposit as .lhe.gz.
+LHE=$(ls pwgevents-*.lhe.gz pwgevents-*.lhe 2>/dev/null | head -1)
 if [ -z "$LHE" ]; then
     mkdir -p "$REPO_DIR/logs"
     cp run.log "$REPO_DIR/logs/job_${SEED}.log"
-    echo "ERROR: no pwgevents-*.lhe.gz found — log at $REPO_DIR/logs/job_${SEED}.log" >&2
+    echo "ERROR: no pwgevents-*.lhe(.gz) found — log at $REPO_DIR/logs/job_${SEED}.log" >&2
     exit 1
 fi
 
-mv "$LHE" "$OUTPUT_DIR/"
-echo "Job $SEED done: deposited $LHE to $OUTPUT_DIR at $(date)"
+DEST="$(basename "$LHE")"
+[[ "$DEST" != *.gz ]] && DEST="${DEST}.gz"
+mv "$LHE" "$OUTPUT_DIR/$DEST"
+echo "Job $SEED done: deposited $DEST to $OUTPUT_DIR at $(date)"
 
 # HTCondor cleans up $_CONDOR_SCRATCH_DIR automatically on job exit.
 # For /tmp fallback (login node testing), clean up explicitly.
