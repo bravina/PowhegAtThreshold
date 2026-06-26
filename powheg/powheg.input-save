@@ -59,7 +59,7 @@ bornktmin 5.0          ! minimum kt on Born kinematics
 ! --- Performance ---
 evenmaxrat 1
 fastbtlbound 1
-storemintupb 1
+storemintupb 0
 smartsig 1
 bornzerodamp 1
 iupperisr 1

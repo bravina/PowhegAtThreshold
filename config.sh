@@ -26,4 +26,4 @@ GRIDPACK_NCORES=40
 
 # HTCondor job array size and events per job  (NJOBS × NEVENTS_PER_JOB = total)
 NJOBS=1000
-NEVENTS_PER_JOB=10000
+NEVENTS_PER_JOB=11000
