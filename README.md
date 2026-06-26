@@ -13,8 +13,8 @@ variations for threshold uncertainty studies.
 
 - CVMFS with an LCG release providing gfortran and LHAPDF6
   (default: `LCG_106/x86_64-el9-gcc13-opt`)
-- Shared filesystem visible from both the build machine and HTCondor workers
-- HTCondor cluster
+- Shared filesystem visible from all build and worker machines
+- HTCondor cluster (or several machines with SSH access — see below)
 
 ## Quick start
 
@@ -119,6 +119,39 @@ bash scripts/04_collect.sh
 ```
 
 Counts LHE files and total events, lists any missing seeds.
+
+## Running without HTCondor (multi-machine fallback)
+
+If HTCondor is unavailable, use `scripts/run_local.sh` to run jobs directly on
+worker machines. It divides `NJOBS` into contiguous partitions and keeps up to
+`NCORES` processes running in parallel on the local machine.
+
+SSH to each machine and start it in a `tmux` or `screen` session:
+
+```bash
+# machine 0 (processes 0–499, seeds 1–500)
+bash scripts/run_local.sh 0
+
+# machine 1 (processes 500–999, seeds 501–1000)
+bash scripts/run_local.sh 1
+
+# machine 2 (processes 1000–1499, seeds 1001–1500)
+bash scripts/run_local.sh 2
+
+# machine 3 (processes 1500–1999, seeds 1501–2000)
+bash scripts/run_local.sh 3
+```
+
+Custom number of machines or cores: `bash scripts/run_local.sh <id> <n_machines> <n_cores>`.
+
+Each job extracts `gridpack.tar.gz` to `$_CONDOR_SCRATCH_DIR/powheg_<seed>` (falls
+back to `/tmp`). With 50 parallel jobs the extracted gridpack occupies roughly
+25 GB of scratch space. If `/tmp` is small, set `_CONDOR_SCRATCH_DIR` first:
+
+```bash
+export _CONDOR_SCRATCH_DIR=/scratch/$USER
+bash scripts/run_local.sh 0
+```
 
 ## Resubmitting failed jobs
 
