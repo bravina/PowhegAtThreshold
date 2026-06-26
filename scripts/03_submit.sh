@@ -1,16 +1,13 @@
 #!/usr/bin/env bash
 # Submit the HTCondor job array.
-# Requires gridpack/pwggrids.dat and gridpack/pwgubound.dat to exist.
+# Requires gridpack.tar.gz to exist (produced by 02_gridpack.sh).
 set -euo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 source "$SCRIPT_DIR/../config.sh"
 
-GRIDDIR="$REPO_DIR/gridpack"
-
-for f in pwggrids.dat pwgubound.dat; do
-    [ -f "$GRIDDIR/$f" ] || { echo "ERROR: $GRIDDIR/$f missing — run 02_gridpack.sh first"; exit 1; }
-done
+TARBALL="$REPO_DIR/gridpack.tar.gz"
+[ -f "$TARBALL" ] || { echo "ERROR: $TARBALL missing — run 02_gridpack.sh first"; exit 1; }
 
 mkdir -p "$REPO_DIR/logs" "$OUTPUT_DIR"
 

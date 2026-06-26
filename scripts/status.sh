@@ -24,10 +24,6 @@ nfiles=${#files[@]}
 echo "  $nfiles / $NJOBS LHE files present"
 echo ""
 
-echo "-- Active job directories --"
-njobs_running=$(ls "$REPO_DIR/jobs/" 2>/dev/null | wc -l)
-echo "  $njobs_running job dirs still in $REPO_DIR/jobs/"
-echo ""
 
 echo "-- Gridpack logs (stage completion) --"
 for stage in st1-xg1 st1-xg2 st2 st3; do

@@ -26,8 +26,6 @@ if (( nfiles < NJOBS )); then
     missing=$(( NJOBS - nfiles ))
     echo ""
     echo "  $missing jobs have not yet deposited output."
-    echo "  Still-running job dirs (if any):"
-    ls "$REPO_DIR/jobs/" 2>/dev/null | head -20 || echo "  (none)"
 fi
 
 if (( total == TOTAL_EXPECTED )); then
