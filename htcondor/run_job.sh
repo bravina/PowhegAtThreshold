@@ -21,16 +21,17 @@ export LHAPDF_DATA_PATH="${LHAPDF_DATA_PATH}:$(lhapdf-config --datadir)"
 # Create isolated working directory
 mkdir -p "$JOB_DIR"
 
-# Symlink shared grid files (read-only; no copying).
-# NRC pwhg_main-thr2 uses per-process files (pwg-NNNN-stat.dat,
-# pwgubound-NNNN.dat, pwgcounters-st3-NNNN.dat) rather than the
-# single pwggrids.dat / pwgubound.dat used by standard POWHEG-BOX.
-ln -sf "$GRIDDIR/pwgseeds.dat" "$JOB_DIR/pwgseeds.dat"
-for f in "$GRIDDIR"/pwg-*-stat.dat \
-         "$GRIDDIR"/pwgubound-*.dat \
-         "$GRIDDIR"/pwgcounters-st3-*.dat \
-         "$GRIDDIR"/pwgubsigma.dat; do
-    [ -f "$f" ] && ln -sf "$f" "$JOB_DIR/$(basename "$f")"
+# Symlink all gridpack files read-only into the job directory.
+# The NRC binary uses many more file types than standard POWHEG-BOX
+# (pwggrid-NNNN.dat, pwggridinfo-*, virtequiv-*, bornequiv-*, etc.),
+# so we symlink everything except input files, stage logs, and LHE output.
+for f in "$GRIDDIR"/*; do
+    bn="$(basename "$f")"
+    [[ "$bn" == powheg.input* ]]  && continue  # job writes its own
+    [[ "$bn" == run-st*.log ]]    && continue  # gridpack stage logs
+    [[ "$bn" == *.lhe ]]          && continue  # event output
+    [[ "$bn" == *.lhe.gz ]]       && continue
+    [ -f "$f" ] && ln -sf "$f" "$JOB_DIR/$bn"
 done
 
 # Build per-job input: stage 4, correct numevts.
