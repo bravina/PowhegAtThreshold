@@ -41,6 +41,7 @@ sed "s/parallelstage.*/parallelstage 4/ ; \
      s/numevts.*/numevts $NEVENTS_PER_JOB/ ; \
      s/use-old-grid.*/use-old-grid 1/" \
     "$SCRATCH/powheg.input-save" > "$SCRATCH/powheg.input"
+echo "maxseeds $NJOBS" >> "$SCRATCH/powheg.input"
 
 # Run POWHEG — seed injected via stdin.
 cd "$SCRATCH"
