@@ -25,12 +25,13 @@ mkdir -p "$SCRATCH"
 tar xzf "$REPO_DIR/gridpack.tar.gz" -C "$SCRATCH"
 
 # Build per-job input: stage 4, correct numevts.
-# use-old-grid 0: suppresses the inherited POWHEG-BOX lookup of pwggrids.dat,
-# which NRC never creates. The NRC-specific pwggrid-NNNN.dat / pwggridinfo-*
-# files are loaded unconditionally through the NRC code path.
+# use-old-grid 1: NRC stage 4 uses this code path to load pwggrid-NNNN.dat
+# (the NRC-specific Vegas grids built during stage 1).  With use-old-grid 0
+# the binary takes a different path that fails; the NRC grid loading is
+# governed by the xg2 gridinfo files, not the standard POWHEG pwggrids.dat.
 sed "s/parallelstage.*/parallelstage 4/ ; \
      s/numevts.*/numevts $NEVENTS_PER_JOB/ ; \
-     s/use-old-grid.*/use-old-grid 0/" \
+     s/use-old-grid.*/use-old-grid 1/" \
     "$SCRATCH/powheg.input-save" > "$SCRATCH/powheg.input"
 
 # Run POWHEG — seed injected via stdin.
