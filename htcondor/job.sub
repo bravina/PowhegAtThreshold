@@ -9,4 +9,6 @@ request_memory = 2GB
 request_disk  = 500MB
 # Binary, gridpack, and output are all on the shared filesystem — no transfer needed
 should_transfer_files = NO
++queue        = "short"
++ALLOW_MWT2   = true
 queue NJOBS_PLACEHOLDER
