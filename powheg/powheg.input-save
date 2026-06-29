@@ -76,6 +76,7 @@ withsubtr 1
 ! --- Output ---
 pdfreweight 1
 storeinfo_rwgt 1
+rwl_format_rwgt 1
 ubsigmadetails 1
 colltest 1
 softtest 1
